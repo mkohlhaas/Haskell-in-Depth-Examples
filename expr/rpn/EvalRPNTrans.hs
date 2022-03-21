@@ -5,6 +5,13 @@ import Control.Applicative
 import Data.Foldable (traverse_)
 import Text.Read (readMaybe)
 
+
+
+
+
+
+
+
 type Stack = [Integer]
 type EvalM = StateT Stack Maybe
 
@@ -19,15 +26,15 @@ pop' :: EvalM Integer
 pop' = do
   xs <- get
   when (null xs) $ lift Nothing
-  put (tail xs)
-  pure (head xs)
+  put $ tail xs
+  pure $ head xs
 
 pop'' :: EvalM Integer
 pop'' = do
   xs <- get
   guard (not $ null xs)
-  put (tail xs)
-  pure (head xs)
+  put $ tail xs
+  pure $ head xs
 
 pop :: EvalM Integer
 pop = do

@@ -13,11 +13,14 @@ import Data.Foldable (traverse_)
 -}
 
 type Stack = [Integer]
-
 type EvalM = State Stack
 
+----------------------------
+-- Stack helper functions --
+----------------------------
+
 push :: Integer -> EvalM ()
-push x = modify (x :)
+push x = modify (x:)
 
 pop :: EvalM Integer
 pop = do
@@ -25,10 +28,36 @@ pop = do
   put $ tail xs
   pure $ head xs
 
+-- pop :: EvalM Integer
+-- pop = state $ \(x:xs) -> (x, xs)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+---------------------
+-- Evaluate        --
+---------------------
+
+
+
+
 evalRPN :: String -> Integer
-evalRPN expr = evalState evalRPN' []
+evalRPN str = evalState evalRPN' []
   where
-    evalRPN' = traverse_ step (words expr) >> pop
+    evalRPN' = traverse_ step (words str) >> pop
     step "+" = processTops (+)
     step "*" = processTops (*)
     step "-" = processTops (-)
