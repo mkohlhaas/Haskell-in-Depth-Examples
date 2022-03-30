@@ -1,4 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE FlexibleContexts #-}
 
 module EvalRPNExcept where
 
@@ -20,16 +21,16 @@ data EvalError = NotEnoughElements
 instance TextShow EvalError where
   showb NotEnoughElements = "Not enough elements in the expression"
   showb ExtraElements = "There are extra elements in the expression"
-  showb (NotANumber t) = "Expression component '" <>
-                         fromText t <> "' is not a number"
-  showb (UnknownVar t) = "Variable '" <>
-                         fromText t <> "' not found"
+  showb (NotANumber t) = "Expression component '" <> fromText t <> "' is not a number"
+  showb (UnknownVar t) = "Variable '" <> fromText t <> "' not found"
 
 type Stack = [Integer]
-
 type EnvVars = [(Text, Integer)]
-
 type EvalM = ReaderT EnvVars (ExceptT EvalError (State Stack))
+
+-------------------
+-- Stack helpers --
+-------------------
 
 push :: Integer -> EvalM ()
 push x = modify (x:)
@@ -37,7 +38,7 @@ push x = modify (x:)
 pop :: EvalM Integer
 pop = get >>= pop'
   where
-    pop' :: Stack -> EvalM Integer
+    -- pop' :: Stack -> EvalM Integer
     pop' [] = throwError NotEnoughElements
     pop' (x:xs) = put xs >> pure x
 
@@ -45,6 +46,10 @@ oneElementOnStack :: EvalM ()
 oneElementOnStack = do
   len <- gets length
   when (len /= 1) $ throwError ExtraElements
+
+-------------
+-- Readers --
+-------------
 
 readVar :: Text -> EvalM Integer
 readVar name = do
@@ -81,8 +86,7 @@ evalRPNMany :: [Text] -> EnvVars -> Text
 evalRPNMany txts env = reportEvalResults $
     evalState (runExceptT (runReaderT (mapM evalOnce txts) env)) []
   where
-    evalOnce txt = (fromText txt <>) <$>
-      (buildOk <$> evalRPNOnce txt) `catchError` (pure . buildErr)
+    evalOnce txt = (fromText txt <>) <$> (buildOk <$> evalRPNOnce txt) `catchError` (pure . buildErr)
     buildOk res = " = " <> showb res
     buildErr err = " Error: " <> showb err
 
