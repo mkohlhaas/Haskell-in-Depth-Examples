@@ -39,7 +39,7 @@ getSunTimes :: GeoCoords -> When -> MyApp (SunTimes ZonedTime)
 getSunTimes gc d = do
     SunTimes {..} <- getSunTimesUTC gc d `catch` noTimeHandler
     ltz <- lookupTimeZone gc sunrise `catchAll` const (pure utc)
-    return $ SunTimes (utcToZonedTime ltz sunrise)
+    pure $ SunTimes (utcToZonedTime ltz sunrise)
                       (utcToZonedTime ltz sunset)
   where
     noTimeHandler :: MonadThrow m => SunInfoException -> m a

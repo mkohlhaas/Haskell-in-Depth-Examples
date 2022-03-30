@@ -41,8 +41,7 @@ withConfig (Params appMode config) = do
       Right wauth' -> runMyApp (run appMode) wauth'
       Left _ -> throwM ConfigError
   where
-    run (FileInput fname) = liftIO (TIO.readFile fname)
-                            >>= processMany . T.lines
+    run (FileInput fname) = liftIO (TIO.readFile fname) >>= processMany . T.lines
     run Interactive = processInteractively
 
 main :: IO ()
